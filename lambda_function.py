@@ -33,15 +33,15 @@ def lambda_handler(event, context):
             parsed_response = response.read().decode('utf-8')
             
             if not validate(parsed_response):
-                raise Exception('Validation failed. No data received')
+                raise Exception('Validation failed. Response does not contain temperature information.')
             
-            return json.loads(json.dumps(parsed_response, default=str))
+            return {
+                'statusCode' : 200,
+                'body' : json.loads(json.dumps(parsed_response))
+            }
             
     except:
         print('Check failed!')
         raise
-    else:
-        print('Check passed!')
-        return null
     finally:
         print('Check complete at {}'.format(right_now))
