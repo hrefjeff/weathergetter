@@ -14,11 +14,61 @@
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
-
-
+</head>
+<body>
+    <div class="container">
+        <h1 class="display-1">CS554 Weather Getter</h1>
+    </div>
+    <div class="container">
+        <form class="row g-3">
+            <div class="col-12">
+                <label for="validationDefault05" class="form-label">Please enter the zip code of the location</label>
+                <input type="text" class="form-control" id="zipCode" required>
+            </div>
+            <div class="d-grid gap-2 d-md-flex justify-content-md-start">
+                <!-- set button onClick method to call function we defined passing input values as parameters -->
+                <button class="btn btn-primary" type="button" onclick="callAPI(document.getElementById('zipCode').value)">Call API</button>
+                <button class="btn btn-outline-danger" type="button" onclick="clearList()">Clear List</button>
+            </div>
+        </form>
+    </div>
+    <div class="container">&nbsp;</div>
+    <div class="container">
+        <ul class="list-group weatherqueries list-group-flush" id="weatherqueries">
+            <li class="list-group-item">Loading weather data...</li>
+        </ul>
+    </div>
     <script>
+        const itemsList = document.querySelector('.weatherqueries');
+        const items = JSON.parse(localStorage.getItem('items')) || [];
+
+        function clearList() {
+            window.localStorage.clear();
+            while(items.length > 0) {
+                items.pop();
+            }
+            document.getElementById('weatherqueries').innerHTML = '';
+        }
+
+        function addItem(name, high, low){
+            const text = `The high for ${name} is ${high} &#8457; and has a low of ${low} &#8457;`;
+            items.push(text);
+            populateList(items, itemsList);
+            localStorage.setItem('items', JSON.stringify(items));
+        }
+
+        function populateList(weatherItems = [], weatherList) {
+            weatherList.innerHTML = weatherItems.map((weather, i) => {
+            return `
+                <li class="list-group-item list-group-item-action">
+                    <label for="item${i}">${weather}</label>
+                </li>
+            `;
+            }).join('');
+        }
+
         // define the callAPI function that takes a first name and last name as parameters
-        var callAPI = (zip_code)=>{
+        var callAPI = (zip_code) => {
             // instantiate a headers object
             var myHeaders = new Headers();
             // add content type header to object
@@ -35,26 +85,21 @@
             // make API call with parameters and use promises to get response
             fetch("https://b6xqsercz4.execute-api.us-east-1.amazonaws.com/dev", requestOptions)
             .then(response => response.text())
-            .then(result => console.log(JSON.parse(result).body))
+            .then(result => {
+                    weatherinfo = JSON.parse(JSON.parse(result).body);
+
+                    n = weatherinfo.name;
+                    h = weatherinfo.main.temp_max;
+                    l = weatherinfo.main.temp_min;
+
+                    addItem(n, h, l);
+                }
+            )
             .catch(error => console.log('error', error));
         }
+
+        populateList(items, itemsList);
+        
     </script>
-</head>
-<body>
-    <div class="container">
-        <h1 class="display-1">CS554 Weather Getter</h1>
-    </div>
-    <div class="container">
-        <form class="row g-3">
-            <div class="col-12">
-                <label for="validationDefault05" class="form-label">Please enter the zip code of the location</label>
-                <input type="text" class="form-control" id="zipCode" required>
-            </div>
-            <div class="col-12">
-                <!-- set button onClick method to call function we defined passing input values as parameters -->
-                <button class="btn btn-primary" type="button" onclick="callAPI(document.getElementById('zipCode').value)">Call API</button>
-            </div>
-        </form>
-    </div>
 </body>
 </html>
