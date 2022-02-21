@@ -44,4 +44,4 @@ def lambda_handler(event, context):
         print('Check failed!')
         raise
     finally:
-        print('Check complete at {}'.format(right_now))
+        print(f"Check complete at {right_now}")
