@@ -44,9 +44,7 @@
 
         function clearList() {
             window.localStorage.clear();
-            while(items.length > 0) {
-                items.pop();
-            }
+            items.length = 0;
             document.getElementById('weatherqueries').innerHTML = '';
         }
 
